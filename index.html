@@ -5,167 +5,187 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Kotoba">
+<meta name="apple-mobile-web-app-title" content="Katoba">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#e9dcc3">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<title>Kotoba Typewriter</title>
+<title>Katoba</title>
 <style>
 :root{
-  --paper:#e9dcc3; --sheet:#f3e9d4; --ink:#4b3a2d; --ghost:#c9b693;
+  --paper:#e9dcc3; --sheet:#f3e9d4; --ink:#4b3a2d; --ghost:#c9b693; --mute:#8a7458;
   --amber:#b5762f; --rust:#a8452f; --moss:#6f7a47; --line:#d9c8a6;
-  --serif: "Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
-  --type: "American Typewriter","Courier Prime","Courier New",monospace;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  --type:"American Typewriter","Courier Prime","Courier New",monospace;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;margin:0}
-body{
-  background:var(--paper);color:var(--ink);font-family:var(--serif);
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);
   padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
-  -webkit-user-select:none;user-select:none;overscroll-behavior:none;
-}
+  -webkit-user-select:none;user-select:none;overscroll-behavior:none}
+/* iOS: inputs inside a user-select:none page cannot receive focus, so allow selection on them */
+input,textarea{-webkit-user-select:text;user-select:text}
 #app{max-width:640px;margin:0 auto;height:100%;display:flex;flex-direction:column;padding:20px}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 button:focus-visible{outline:2px solid var(--amber);outline-offset:3px}
 .hidden{display:none!important}
+.col{flex:1;min-height:0;flex-direction:column}
 
 /* menu */
-#menu{flex:1;display:flex;flex-direction:column;justify-content:center;gap:28px}
-#menu h1{font-weight:400;font-size:2rem;letter-spacing:.04em;margin:0;text-align:center}
-#menu p.sub{margin:-18px 0 0;text-align:center;color:var(--ghost);font-style:italic}
-.pick{
-  background:var(--sheet);border:1px solid var(--line);border-radius:6px;
-  padding:26px 22px;text-align:left;display:block;width:100%;
-  transition:transform .15s,border-color .15s;
-}
+#menu{flex:1;display:flex;flex-direction:column;justify-content:center;gap:26px}
+#menu h1{font-weight:400;font-size:2rem;letter-spacing:.06em;margin:0;text-align:center}
+#menu p.sub{margin:-16px 0 0;text-align:center;color:var(--mute);font-style:italic}
+.pick{background:var(--sheet);border:1px solid var(--line);border-radius:6px;padding:24px 22px;text-align:left;display:block;width:100%;transition:transform .15s,border-color .15s}
 .pick:active{transform:scale(.985);border-color:var(--amber)}
 .pick b{display:block;font-weight:400;font-size:1.35rem;margin-bottom:6px}
-.pick span{color:#8a7458;font-size:.95rem}
+.pick span{color:var(--mute);font-size:.95rem}
 .pick .glyph{font-family:var(--type);color:var(--ghost);letter-spacing:.2em;margin-top:12px;display:block}
 
-/* top bar */
-.bar{display:flex;align-items:center;justify-content:space-between;min-height:44px}
-.bar .t{font-size:1.05rem;color:#8a7458}
-.link{padding:10px 4px;color:#8a7458}
-.toggle{display:flex;align-items:center;gap:10px;padding:10px 4px;color:#8a7458}
-.sw{width:38px;height:22px;border-radius:11px;background:var(--line);position:relative;transition:background .2s}
+/* bars, toggles */
+.bar{display:flex;align-items:center;justify-content:space-between;min-height:44px;gap:8px}
+.bar .t{font-size:1.05rem;color:var(--mute);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.link{padding:10px 4px;color:var(--mute);white-space:nowrap}
+.toggle{display:flex;align-items:center;gap:10px;padding:10px 4px;color:var(--mute)}
+.sw{width:38px;height:22px;border-radius:11px;background:var(--line);position:relative;transition:background .2s;flex:none}
 .sw::after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:var(--sheet);transition:transform .2s}
 .toggle[aria-checked="true"] .sw{background:var(--amber)}
 .toggle[aria-checked="true"] .sw::after{transform:translateX(16px)}
+.seg{display:flex;gap:6px;margin:4px 0 2px}
+.seg button{flex:1;padding:9px 0;border:1px solid var(--line);border-radius:6px;color:var(--mute);font-size:.9rem;transition:background .15s,color .15s}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--sheet);border-color:var(--ink)}
+.prog{height:3px;background:var(--line);border-radius:2px;overflow:hidden;margin-top:4px}
+.prog i{display:block;height:100%;width:0;background:var(--amber);transition:width .18s ease-out}
+.row2{display:flex;justify-content:space-between;gap:10px;margin-top:4px;font-size:.9rem;color:var(--mute);font-variant-numeric:tabular-nums}
+.clk{font-size:.9rem;color:var(--mute);text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.clk b{font-weight:400;color:var(--amber);display:inline-block}
+.clk.bump b{animation:bump .18s ease-out}
+@keyframes bump{0%{transform:scale(1.25)}100%{transform:none}}
+#menu .clk{text-align:center;font-size:1.05rem;margin:-14px 0 0}
 
-/* paper */
-#paper{
-  flex:1;min-height:0;margin:8px 0 12px;background:var(--sheet);border:1px solid var(--line);
-  border-radius:6px;padding:26px 22px;overflow-y:auto;
-  font-family:var(--type);font-size:1.3rem;line-height:2;
-  white-space:pre-wrap;word-break:break-word;
-  box-shadow:inset 0 0 40px rgba(181,118,47,.06);
-}
+/* typewriter paper. The textarea lies over the page, so a tap reaches it directly and iOS opens the keyboard */
+.paperwrap{position:relative;flex:1;min-height:0;margin:8px 0 10px;display:flex}
+#paper{flex:1;min-height:0;background:var(--sheet);border:1px solid var(--line);border-radius:6px;padding:26px 22px;overflow-y:auto;
+  font-family:var(--type);font-size:1.3rem;line-height:2;white-space:pre-wrap;word-break:break-word;box-shadow:inset 0 0 40px rgba(181,118,47,.06)}
+#kb{position:absolute;inset:0;width:100%;height:100%;opacity:0;border:0;padding:0;margin:0;resize:none;background:transparent;color:transparent;caret-color:transparent;font-size:16px;z-index:2}
+#hint{text-align:center;color:var(--mute);font-style:italic;min-height:1.4em;margin-bottom:6px}
 .c{color:var(--ghost)}
 .c.ok{color:var(--ink)}
 .c.bad{color:var(--rust);text-decoration:underline wavy;text-decoration-thickness:1px}
 .c.cur{border-bottom:2px solid var(--amber);animation:blink 1.1s steps(1) infinite}
 @keyframes blink{50%{border-color:transparent}}
-@media (prefers-reduced-motion:reduce){.c.cur{animation:none}}
-#hint{text-align:center;color:var(--ghost);font-style:italic;min-height:1.4em;margin-bottom:6px}
-#kb{position:fixed;opacity:0;pointer-events:none;left:-100px;top:0;width:1px;height:1px}
-
-/* morse */
-#srcline{font-family:var(--type);font-size:1.15rem;line-height:1.9;white-space:pre-wrap;word-break:break-word}
-#srcline .done{color:var(--moss)}
-#srcline .todo{color:var(--ghost)}
-#mtyped{font-family:var(--type);font-size:1.6rem;letter-spacing:.12em;line-height:2.1;word-break:break-all}
-#pad{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding-bottom:6px}
-#pad button{
-  background:var(--sheet);border:1px solid var(--line);border-radius:6px;
-  min-height:64px;font-size:1.05rem;color:var(--ink);transition:background .1s,border-color .1s;
-}
-#pad button:active{background:#ead9b8;border-color:var(--amber)}
-#pad .big{font-family:var(--type);font-size:2.2rem}
-#pad .wide{grid-column:span 2}
-#pad .row3{grid-column:span 2;display:grid;grid-template-columns:1fr 1fr;gap:10px}
-
-.seg{display:flex;gap:6px;margin:4px 0 2px}
-.seg button{flex:1;padding:9px 0;border:1px solid var(--line);border-radius:6px;color:#8a7458;font-size:.95rem;transition:background .15s,color .15s}
-.seg button[aria-pressed="true"]{background:var(--ink);color:var(--sheet);border-color:var(--ink)}
-.clk{font-size:.9rem;color:#8a7458;text-align:right;margin-top:4px;font-variant-numeric:tabular-nums}
-.clk b{font-weight:400;color:var(--amber);display:inline-block}
-.clk.bump b{animation:bump .18s ease-out}
-@keyframes bump{0%{transform:scale(1.25)}100%{transform:none}}
-#menu .clk{text-align:center;font-size:1.05rem;margin:-14px 0 0}
-@media (prefers-reduced-motion:reduce){.clk.bump b{animation:none}}
-/* feedback */
 .c.pop{animation:pop .22s ease-out}
 @keyframes pop{0%{transform:translateY(-4px) scale(1.15);opacity:.4}100%{transform:none;opacity:1}}
 .c.shake{animation:shake .28s ease-in-out}
 @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
-.prog{height:3px;background:var(--line);border-radius:2px;overflow:hidden;margin-top:4px}
-.prog i{display:block;height:100%;width:0;background:var(--amber);transition:width .18s ease-out}
-.box{flex:1;min-height:0;background:var(--sheet);border:1px solid var(--line);border-radius:6px;padding:16px 18px;overflow-y:auto;margin-bottom:10px;box-shadow:inset 0 0 40px rgba(181,118,47,.06)}
-.box .lab{font-size:.85rem;font-style:italic;color:#8a7458;margin-bottom:6px}
-#pad button.hit{background:#e3cd9f;border-color:var(--amber)}
-#result{animation:fadein .6s ease-out}
+
+/* morse */
+.box{flex:1;min-height:0;background:var(--sheet);border:1px solid var(--line);border-radius:6px;padding:14px 18px;overflow-y:auto;margin-bottom:10px;box-shadow:inset 0 0 40px rgba(181,118,47,.06)}
+.box .lab{font-size:.85rem;font-style:italic;color:var(--mute);margin-bottom:4px}
+#srcline{font-family:var(--type);font-size:1.15rem;line-height:1.9;white-space:pre-wrap;word-break:break-word}
+#srcline .todo{color:#6b5846}
+#srcline .done{color:var(--moss);font-weight:bold}
+#mtyped{font-family:var(--type);font-size:1.6rem;letter-spacing:.12em;line-height:2.1;word-break:break-all}
+#pad{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding-bottom:6px}
+#pad button{background:var(--sheet);border:1px solid var(--line);border-radius:6px;min-height:60px;font-size:1.05rem;color:var(--ink);transition:background .1s,border-color .1s}
+#pad button:active,#pad button.hit{background:#e3cd9f;border-color:var(--amber)}
+#pad .big{font-family:var(--type);font-size:2.2rem}
+#pad .wide{grid-column:span 2}
+#pad .row3{grid-column:span 2;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.toolrow{display:flex;align-items:center;justify-content:space-between}
+
+/* book list */
+#bookList{overflow-y:auto}
+.book{display:block;width:100%;text-align:left;background:var(--sheet);border:1px solid var(--line);border-radius:6px;padding:16px 18px;margin-bottom:10px}
+.book:active{border-color:var(--amber)}
+.book b{display:block;font-weight:400;font-size:1.15rem}
+.book span{color:var(--mute);font-size:.9rem}
+.book .prog{margin:10px 0 6px}
+
+/* modal */
+.modal{position:fixed;inset:0;background:rgba(75,58,45,.45);display:flex;align-items:center;justify-content:center;padding:20px;z-index:10}
+.card{background:var(--sheet);border:1px solid var(--line);border-radius:8px;padding:22px;width:100%;max-width:420px;max-height:85vh;overflow-y:auto;display:flex;flex-direction:column;gap:12px}
+.card h3{margin:0;font-weight:400;font-size:1.3rem}
+.lab2{color:var(--mute);font-size:.9rem}
+.row{display:flex;gap:10px}
+input[type=number]{flex:1;min-width:0;font:inherit;font-size:16px;padding:12px;border:1px solid var(--line);border-radius:6px;background:var(--paper);color:var(--ink)}
+#tableGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px 12px;font-family:var(--type)}
+#tableGrid div{display:flex;justify-content:space-between;border-bottom:1px solid var(--line);padding:4px 2px}
+#tableGrid b{font-weight:400}
+#tableGrid span{color:var(--amber);letter-spacing:.1em}
+
+/* result + buttons */
+#result{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:18px;text-align:center;animation:fadein .6s ease-out}
 @keyframes fadein{from{opacity:0}to{opacity:1}}
-@media (prefers-reduced-motion:reduce){.c.pop,.c.shake,#result{animation:none}.prog i{transition:none}}
-/* result */
-#result{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:18px;text-align:center}
 #result h2{font-weight:400;font-size:1.8rem;margin:0}
-#result .stats{display:flex;gap:34px;color:#8a7458}
+#result .stats{display:flex;gap:34px;color:var(--mute)}
 #result .stats div b{display:block;font-weight:400;font-size:2rem;color:var(--ink)}
 .btn{background:var(--ink);color:var(--sheet);padding:14px 30px;border-radius:6px;font-size:1.05rem}
+.btn.sm{padding:12px 18px;font-size:1rem}
 .btn.alt{background:none;color:var(--ink);border:1px solid var(--line)}
+.danger{color:var(--rust)}
+@media (prefers-reduced-motion:reduce){.c.cur,.c.pop,.c.shake,#result,.clk.bump b{animation:none}.prog i{transition:none}}
 </style>
 </head>
 <body>
 <div id="app">
 
   <section id="menu">
-    <h1>Kotoba</h1>
-    <p class="sub">write a letter, slowly</p>
+    <h1>Katoba</h1>
+    <p class="sub">write slowly</p>
     <div class="clk"></div>
     <button class="pick" data-game="type">
-      <b>Typewriter</b><span>Copy a letter from its faint outline.</span>
+      <b>Typewriter</b><span>Copy a quote, a historical letter or a whole book.</span>
       <span class="glyph">D e a r&nbsp; f r i e n d</span>
     </button>
     <button class="pick" data-game="morse">
-      <b>Morse</b><span>Write the same letter in dots and dashes.</span>
+      <b>Morse</b><span>Write the same texts in dots and dashes.</span>
       <span class="glyph">-.. . .- .-.</span>
     </button>
-    <div id="bests" style="text-align:center;color:#8a7458;font-size:.95rem"></div>
-    <button class="toggle" id="soundToggle" role="switch" aria-checked="true" style="margin:0 auto"><span class="sw"></span>Sound</button>
+    <div id="bests" style="text-align:center;color:var(--mute);font-size:.95rem"></div>
+    <button class="link" id="openSettings" style="margin:0 auto">Settings</button>
   </section>
 
-  <section id="typeGame" class="hidden" style="flex:1;min-height:0;flex-direction:column">
+  <section id="typeGame" class="hidden col">
     <div class="bar">
       <button class="link" data-back>Back</button>
       <span class="t" id="tTitle"></span>
-      <button class="link" data-next>Next letter</button>
+      <button class="link" id="tNext">Next</button>
     </div>
-    <div class="seg">
-      <button id="segLetters" aria-pressed="true">Letters</button>
-      <button id="segSym" aria-pressed="false">Symbols</button>
+    <div class="seg" id="tSeg">
+      <button data-src="quote">Quotes</button>
+      <button data-src="letter">Letters</button>
+      <button data-src="book">Books</button>
+      <button data-src="sym">Symbols</button>
     </div>
     <div class="prog"><i id="progT"></i></div>
-    <div class="clk"></div>
-    <div id="paper" tabindex="-1"></div>
+    <div class="row2"><span id="metaT"></span><span class="clk"></span></div>
+    <div class="paperwrap">
+      <div id="paper"></div>
+      <textarea id="kb" autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="done" aria-label="Typing area"></textarea>
+    </div>
     <div id="hint">Tap the page to start typing</div>
-    <textarea id="kb" autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false"></textarea>
   </section>
 
-  <section id="morseGame" class="hidden" style="flex:1;min-height:0;flex-direction:column">
+  <section id="morseGame" class="hidden col">
     <div class="bar">
       <button class="link" data-back>Back</button>
       <span class="t" id="mTitle"></span>
-      <button class="link" data-next>Next letter</button>
+      <button class="link" id="mNext">Next</button>
+    </div>
+    <div class="seg" id="mSeg">
+      <button data-msrc="quote">Quotes</button>
+      <button data-msrc="letter">Letters</button>
     </div>
     <div class="prog"><i id="progM"></i></div>
-    <div class="clk"></div>
+    <div class="row2"><span id="metaM"></span><span class="clk"></span></div>
     <div style="flex:1;min-height:0;display:flex;flex-direction:column;margin-top:8px">
-      <div class="box"><div class="lab">Letter</div><div id="srcline"></div></div>
+      <div class="box"><div class="lab">Text</div><div id="srcline"></div></div>
       <div class="box"><div class="lab">Morse</div><div id="mtyped"></div></div>
     </div>
-    <button class="toggle" id="ghostToggle" role="switch" aria-checked="true"><span class="sw"></span>Show ghost dots and dashes</button>
+    <div class="toolrow">
+      <button class="toggle" id="ghostToggle" role="switch" aria-checked="true"><span class="sw"></span>Ghost dots and dashes</button>
+      <button class="link" id="tableBtn">Morse table</button>
+    </div>
     <div id="pad">
       <button class="big" data-k=".">.</button>
       <button class="big" data-k="-">&minus;</button>
@@ -177,34 +197,147 @@ button:focus-visible{outline:2px solid var(--amber);outline-offset:3px}
     </div>
   </section>
 
+  <section id="bookList" class="hidden col">
+    <div class="bar">
+      <button class="link" data-back>Back</button>
+      <span class="t">Books</span>
+      <span style="width:40px"></span>
+    </div>
+    <div id="books" style="margin-top:8px"></div>
+  </section>
+
   <section id="result" class="hidden">
-    <h2>Letter finished</h2>
+    <h2 id="rTitle">Finished</h2>
     <div class="stats">
       <div><b id="rWpm">0</b>words/min</div>
       <div><b id="rAcc">0%</b>accuracy</div>
     </div>
-    <button class="btn" id="again">Another letter</button>
+    <button class="btn" id="again">Next</button>
     <button class="btn alt" id="toMenu">Menu</button>
   </section>
-
 </div>
+
+<div class="modal hidden" id="sheet"><div class="card">
+  <h3>Settings</h3>
+  <button class="toggle" id="soundToggle" role="switch" aria-checked="true"><span class="sw"></span>Sound</button>
+  <div class="lab2">Clicks</div>
+  <div class="row"><input id="clicksInput" type="number" inputmode="numeric" min="0" step="1"><button class="btn sm" id="clicksSet">Set</button></div>
+  <div class="row"><button class="btn alt sm" data-add="1000">+1,000</button><button class="btn alt sm" data-add="100000">+100,000</button></div>
+  <button class="link danger" id="resetAll">Reset all saved data</button>
+  <button class="btn" data-close>Done</button>
+</div></div>
+
+<div class="modal hidden" id="tableModal"><div class="card">
+  <h3>Morse code</h3>
+  <div id="tableGrid"></div>
+  <button class="btn" data-close>Close</button>
+</div></div>
+
 <script>
-/* LETTERS: edit this list to add your own letters. Each item: { title, text }.
-   Use plain text: letters, digits, spaces and . , ? ! ' - only. */
-const LETTERS = [
-  { title: "Letter one", text: "Dear friend, I hope this letter finds you well. The days are getting shorter here, and the evenings are quiet. I think of you often. Write back when you have time. Yours, always." },
-  { title: "Letter two", text: "Dear Mother, the journey was calm and the tea was warm. I have found a small room near the river. In the morning I open the window and listen to the water. Please do not worry about me." },
-  { title: "Letter three", text: "My dear Anna, this is a placeholder letter. Soon you will send me the real ones. Until then, type slowly, breathe, and enjoy the sound of every key. With love, Saba." }
+/* ===== Content. Edit here to add your own. ===== */
+const QUOTES = [
+  { by: "William Shakespeare", text: "All the world's a stage, and all the men and women merely players." },
+  { by: "William Shakespeare", text: "The course of true love never did run smooth." },
+  { by: "William Shakespeare", text: "To be, or not to be, that is the question." },
+  { by: "Henry David Thoreau", text: "I went to the woods because I wished to live deliberately, to front only the essential facts of life, and see if I could not learn what it had to teach, and not, when I came to die, discover that I had not lived." },
+  { by: "Henry David Thoreau", text: "The mass of men lead lives of quiet desperation." },
+  { by: "Ralph Waldo Emerson", text: "Nothing great was ever achieved without enthusiasm." },
+  { by: "Ralph Waldo Emerson", text: "To be great is to be misunderstood." },
+  { by: "Abraham Lincoln", text: "Government of the people, by the people, for the people, shall not perish from the earth." },
+  { by: "Oscar Wilde", text: "We are all in the gutter, but some of us are looking at the stars." },
+  { by: "Jane Austen", text: "It is a truth universally acknowledged, that a single man in possession of a good fortune, must be in want of a wife." },
+  { by: "Leo Tolstoy", text: "Happy families are all alike; every unhappy family is unhappy in its own way." },
+  { by: "Charles Dickens", text: "It was the best of times, it was the worst of times, it was the age of wisdom, it was the age of foolishness." },
+  { by: "Herman Melville", text: "It is not down in any map; true places never are." },
+  { by: "Walt Whitman", text: "I am large, I contain multitudes." },
+  { by: "Emily Dickinson", text: "Hope is the thing with feathers that perches in the soul, and sings the tune without the words, and never stops at all." },
+  { by: "Robert Frost", text: "Two roads diverged in a wood, and I - I took the one less traveled by, and that has made all the difference." },
+  { by: "John Keats", text: "A thing of beauty is a joy for ever: its loveliness increases; it will never pass into nothingness." },
+  { by: "Edgar Allan Poe", text: "All that we see or seem is but a dream within a dream." },
+  { by: "Lewis Carroll", text: "Why, sometimes I've believed as many as six impossible things before breakfast." },
+  { by: "Mark Twain", text: "Courage is resistance to fear, mastery of fear, not absence of fear." },
+  { by: "Benjamin Franklin", text: "Well done is better than well said." },
+  { by: "Lao Tzu", text: "A journey of a thousand miles begins with a single step." },
+  { by: "Franklin D. Roosevelt", text: "The only thing we have to fear is fear itself." },
+  { by: "Socrates", text: "The unexamined life is not worth living." },
+  { by: "Rene Descartes", text: "I think, therefore I am." },
+  { by: "Francis Bacon", text: "Knowledge itself is power." }
+];
+const HLETTERS = [
+  { id: "bixby", title: "Letter to Mrs. Bixby", from: "Abraham Lincoln, 1864",
+    text: "Dear Madam, I have been shown in the files of the War Department a statement of the Adjutant General of Massachusetts that you are the mother of five sons who have died gloriously on the field of battle. I feel how weak and fruitless must be any word of mine which should attempt to beguile you from the grief of a loss so overwhelming. But I cannot refrain from tendering you the consolation that may be found in the thanks of the Republic they died to save. I pray that our Heavenly Father may assuage the anguish of your bereavement, and leave you only the cherished memory of the loved and lost, and the solemn pride that must be yours to have laid so costly a sacrifice upon the altar of Freedom. Yours very sincerely and respectfully, A. Lincoln." },
+  { id: "remember", title: "Remember the Ladies", from: "Abigail Adams to John Adams, 1776",
+    text: "I long to hear that you have declared an independency. And by the way, in the new Code of Laws which I suppose it will be necessary for you to make, I desire you would Remember the Ladies, and be more generous and favourable to them than your ancestors. Do not put such unlimited power into the hands of the Husbands. Remember all Men would be tyrants if they could. If particular care and attention is not paid to the Ladies we are determined to foment a Rebellion, and will not hold ourselves bound by any Laws in which we have no voice, or Representation." },
+  { id: "july", title: "The Second Day of July", from: "John Adams to Abigail Adams, 1776",
+    text: "The Second Day of July 1776, will be the most memorable Epocha, in the History of America. I am apt to believe that it will be celebrated, by succeeding Generations, as the great anniversary Festival. It ought to be commemorated, as the Day of Deliverance by solemn Acts of Devotion to God Almighty. It ought to be solemnized with Pomp and Parade, with Shews, Games, Sports, Guns, Bells, Bonfires and Illuminations from one End of this Continent to the other from this Time forward forever more." },
+  { id: "keats", title: "I cannot exist without you", from: "John Keats to Fanny Brawne, 1819",
+    text: "I cannot exist without you. I am forgetful of every thing but seeing you again - my Life seems to stop there - I see no further. You have absorb'd me. I have a sensation at the present moment as though I was dissolving - I should be exquisitely miserable without the hope of soon seeing you." },
+  { id: "scott", title: "Message to the Public", from: "Captain Robert Falcon Scott, 1912",
+    text: "Had we lived, I should have had a tale to tell of the hardihood, endurance, and courage of my companions which would have stirred the heart of every Englishman. These rough notes and our dead bodies must tell the tale, but surely, surely, a great rich country like ours will see that those who are dependent on us are properly provided for." },
+  { id: "newport", title: "To the Hebrew Congregation in Newport", from: "George Washington, 1790",
+    text: "While I receive, with much satisfaction, your Address replete with expressions of affection and esteem; I rejoice in the opportunity of assuring you, that I shall always retain a grateful remembrance of the cordial welcome I experienced in my visit to Newport, from all classes of Citizens. The reflection on the days of difficulty and danger which are past is rendered the more sweet, from a consciousness that they are succeeded by days of uncommon prosperity and security. If we have wisdom to make the best use of the advantages with which we are now favored, we cannot fail, under the just administration of a good Government, to become a great and a happy people. The Citizens of the United States of America have a right to applaud themselves for having given to mankind examples of an enlarged and liberal policy: a policy worthy of imitation. All possess alike liberty of conscience and immunities of citizenship. It is now no more that toleration is spoken of, as if it was by the indulgence of one class of people, that another enjoyed the exercise of their inherent natural rights. For happily the Government of the United States, which gives to bigotry no sanction, to persecution no assistance requires only that they who live under its protection should demean themselves as good citizens, in giving it on all occasions their effectual support. It would be inconsistent with the frankness of my character not to avow that I am pleased with your favorable opinion of my Administration, and fervent wishes for my felicity. May the Children of the Stock of Abraham, who dwell in this land, continue to merit and enjoy the good will of the other Inhabitants; while every one shall sit in safety under his own vine and figtree, and there shall be none to make him afraid. May the father of all mercies scatter light and not darkness in our paths, and make us all in our several vocations useful here, and in his own due time and way everlastingly happy." }
+];
+/* Books: text files in this folder, one page per line. */
+const BOOKS = [
+ {
+  "id": "alice",
+  "title": "Alice's Adventures in Wonderland",
+  "author": "Lewis Carroll",
+  "file": "book-alice.txt",
+  "pages": 380
+ },
+ {
+  "id": "thursday",
+  "title": "The Man Who Was Thursday",
+  "author": "G. K. Chesterton",
+  "file": "book-thursday.txt",
+  "pages": 809
+ },
+ {
+  "id": "persuasion",
+  "title": "Persuasion",
+  "author": "Jane Austen",
+  "file": "book-persuasion.txt",
+  "pages": 1270
+ },
+ {
+  "id": "sense",
+  "title": "Sense and Sensibility",
+  "author": "Jane Austen",
+  "file": "book-sense.txt",
+  "pages": 1816
+ },
+ {
+  "id": "moby",
+  "title": "Moby Dick",
+  "author": "Herman Melville",
+  "file": "book-moby.txt",
+  "pages": 3272
+ }
 ];
 </script>
 <script>
 "use strict";
-/* ---------- storage ---------- */
+/* ---------- storage (with import from the old "kotoba" name) ---------- */
+try{
+  if (!localStorage.getItem("katoba:migrated")){
+    for (let i = 0; i < localStorage.length; i++){
+      const k = localStorage.key(i);
+      if (k && k.indexOf("kotoba:") === 0){
+        const n = "katoba:" + k.slice(7);
+        if (localStorage.getItem(n) === null) localStorage.setItem(n, localStorage.getItem(k));
+      }
+    }
+    localStorage.setItem("katoba:migrated", "1");
+  }
+}catch(e){}
 const store = {
-  get(k, d){ try{ const v = localStorage.getItem("kotoba:"+k); return v===null ? d : JSON.parse(v); }catch(e){ return d; } },
-  set(k, v){ try{ localStorage.setItem("kotoba:"+k, JSON.stringify(v)); }catch(e){} }
+  get(k, d){ try{ const v = localStorage.getItem("katoba:"+k); return v === null ? d : JSON.parse(v); }catch(e){ return d; } },
+  set(k, v){ try{ localStorage.setItem("katoba:"+k, JSON.stringify(v)); }catch(e){} }
 };
 const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+
 /* ---------- sound ---------- */
 let ac = null;
 function audio(){
@@ -252,75 +385,183 @@ function updateClicks(bump){
   });
 }
 function addClick(){ clicks++; store.set("clicks", clicks); updateClicks(true); }
+function setClicks(n){
+  clicks = Math.max(0, Math.min(1e12, Math.floor(Number(n)) || 0));
+  store.set("clicks", clicks); updateClicks(true); $("#clicksInput").value = clicks;
+}
+
+/* ---------- morse data ---------- */
 const MORSE = {A:".-",B:"-...",C:"-.-.",D:"-..",E:".",F:"..-.",G:"--.",H:"....",I:"..",J:".---",K:"-.-",L:".-..",M:"--",N:"-.",O:"---",P:".--.",Q:"--.-",R:".-.",S:"...",T:"-",U:"..-",V:"...-",W:".--",X:"-..-",Y:"-.--",Z:"--..",
  "0":"-----","1":".----","2":"..---","3":"...--","4":"....-","5":".....","6":"-....","7":"--...","8":"---..","9":"----.",
  ".":".-.-.-",",":"--..--","?":"..--..","!":"-.-.--","'":".----.","-":"-....-"};
-const REV = Object.fromEntries(Object.entries(MORSE).map(([k,v])=>[v,k]));
 
-let mode = null, idx = store.get("letterIdx", 0) % LETTERS.length;
-let startTime = 0, errors = 0, keystrokes = 0, finished = false;
-
+/* ---------- state ---------- */
+let mode = null, item = null, pos = 0;
+let startTime = 0, errors = 0, keystrokes = 0, finished = false, busy = false, sessWords = 0, sessMs = 0;
+const bookCache = {};
+const SECTIONS = ["menu","typeGame","morseGame","bookList","result"];
 function show(id){
-  for (const s of ["menu","typeGame","morseGame","result"]) {
+  for (const s of SECTIONS){
     const el = $("#"+s); el.classList.toggle("hidden", s !== id);
-    if (s === id && (s==="typeGame"||s==="morseGame")) el.style.display = "flex"; else if (s!==id) el.style.display = "";
+    el.style.display = (s === id && el.classList.contains("col")) ? "flex" : "";
   }
 }
 function bests(){
-  const b = store.get("best", {});
-  const parts = [];
-  if (b.type) parts.push("Typewriter best: " + b.type + " wpm");
-  if (b.sym) parts.push("Symbols best: " + b.sym + " wpm");
-  if (b.morse) parts.push("Morse best: " + b.morse + " wpm");
-  $("#bests").textContent = parts.join("   |   ");
+  const b = store.get("best", {}), p = [];
+  if (b.type) p.push("Typewriter " + b.type + " wpm");
+  if (b.sym) p.push("Symbols " + b.sym + " wpm");
+  if (b.morse) p.push("Morse " + b.morse + " wpm");
+  $("#bests").textContent = p.join("  |  ");
 }
-function openMenu(){ mode = null; show("menu"); bests(); }
+function openMenu(){ mode = null; finished = false; busy = false; kb.blur(); show("menu"); bests(); }
+const srcOf = g => g === "type" ? store.get("src", "quote") : store.get("msrc", "quote");
+
+/* ---------- content helpers ---------- */
+const SYM_POOLS = ["0123456789", "!@#$%^&*()", "~`-_=+[]{}\\|;:'\",.<>/?", "0123456789!@#$%^&*()~-_=+[]{};:'\",.<>/?"];
+function genSymbols(){
+  const g = [];
+  for (let n = 0; n < 12; n++){
+    const pool = SYM_POOLS[n % 4]; let w = "";
+    for (let i = 0; i < 4; i++) w += pool[Math.floor(Math.random() * pool.length)];
+    g.push(w);
+  }
+  return g.join(" ");
+}
+function chunk(text, n){
+  const out = []; let cur = "";
+  for (const w of text.split(/\s+/)){
+    if (cur && cur.length + 1 + w.length > n){ out.push(cur); cur = w; } else cur = cur ? cur + " " + w : w;
+  }
+  if (cur) out.push(cur);
+  return out;
+}
+function loadItem(g){
+  const k = srcOf(g);
+  if (k === "sym") return { kind:"sym", title:"Symbols", sub:"Numbers and symbols", pages:[genSymbols()], posKey:null };
+  if (k === "letter"){
+    const L = HLETTERS[store.get(g+":li", 0) % HLETTERS.length];
+    return { kind:"letter", title:L.title, sub:L.from, pages: g === "morse" ? chunk(L.text, 90) : [L.text], posKey: g === "morse" ? "mpos:"+L.id : null };
+  }
+  const q = QUOTES[store.get(g+":qi", 0) % QUOTES.length];
+  return { kind:"quote", title:q.by, sub:"Quote", pages:[q.text], posKey:null };
+}
+async function loadBook(b){
+  if (bookCache[b.id]) return bookCache[b.id];
+  const r = await fetch(b.file);
+  if (!r.ok) throw new Error("load");
+  const pages = (await r.text()).split("\n").filter(Boolean);
+  bookCache[b.id] = pages; return pages;
+}
+
+/* ---------- starting and finishing ---------- */
+function setSeg(){
+  document.querySelectorAll("#tSeg button").forEach(b => b.setAttribute("aria-pressed", b.dataset.src === srcOf("type")));
+  document.querySelectorAll("#mSeg button").forEach(b => b.setAttribute("aria-pressed", b.dataset.msrc === srcOf("morse")));
+  const k = srcOf("type");
+  $("#tNext").textContent = k === "sym" ? "New set" : k === "book" ? "Books" : "Next";
+}
+async function startMode(g){
+  mode = g; show(g === "type" ? "typeGame" : "morseGame"); setSeg();
+  if (g === "type" && srcOf("type") === "book"){
+    const id = store.get("book", null);
+    return id ? startBook(id) : openBooks();
+  }
+  item = loadItem(g); pos = item.posKey ? Math.min(store.get(item.posKey, 0), item.pages.length - 1) : 0;
+  beginItem();
+}
+async function startBook(id){
+  const b = BOOKS.find(x => x.id === id); if (!b) return openBooks();
+  mode = "type"; store.set("book", id); store.set("src", "book"); show("typeGame"); setSeg();
+  $("#tTitle").textContent = b.title; $("#metaT").textContent = ""; paper.textContent = "Loading...";
+  let pages;
+  try{ pages = await loadBook(b); }
+  catch(e){ paper.textContent = "Could not load this book. Open it once while online."; return; }
+  let p = store.get("pos:"+id, 0); if (p >= pages.length) p = 0;
+  item = { kind:"book", id, title:b.title, sub:b.author, pages, posKey:"pos:"+id }; pos = p;
+  beginItem();
+}
+function beginItem(){ sessWords = sessMs = errors = keystrokes = 0; finished = busy = false; showPage(); }
+function showPage(){
+  startTime = 0;
+  if (mode === "type"){
+    typed = ""; kb.value = ""; target = item.pages[pos];
+    $("#tTitle").textContent = item.title; renderType();
+  } else {
+    mTyped = ""; mTarget = buildMorse(item.pages[pos]);
+    $("#mTitle").textContent = item.title; renderMorse();
+  }
+  updateMeta();
+}
+function updateMeta(){
+  const n = item.pages.length; let t;
+  if (item.kind === "book") t = "Page " + (pos+1) + " of " + n + " - " + (100*pos/n).toFixed(1) + "%";
+  else if (n > 1) t = item.sub + " - part " + (pos+1) + " of " + n;
+  else t = item.sub;
+  $("#metaT").textContent = t; $("#metaM").textContent = t;
+}
+function setProg(within){
+  const w = 100 * (pos + Math.min(1, within)) / item.pages.length + "%";
+  $("#progT").style.width = w; $("#progM").style.width = w;
+}
+function pageDone(){
+  const words = item.pages[pos].split(/\s+/).length;
+  sessWords += words; sessMs += Math.max(Date.now() - startTime, 600);
+  if (pos + 1 < item.pages.length){
+    pos++; if (item.posKey) store.set(item.posKey, pos);
+    busy = true; sfx.gap();
+    setTimeout(() => { busy = false; showPage(); }, 260);
+  } else {
+    if (item.posKey) store.set(item.posKey, item.kind === "book" ? item.pages.length : 0);
+    finishItem();
+  }
+}
+function finishItem(){
+  finished = true;
+  const wpm = Math.round(sessWords / Math.max(sessMs / 60000, 1/600));
+  const acc = keystrokes ? Math.max(0, Math.round(100 * (1 - errors / keystrokes))) : 100;
+  const key = mode === "morse" ? "morse" : item.kind === "sym" ? "sym" : item.kind === "book" ? null : "type";
+  if (key){ const b = store.get("best", {}); if (!b[key] || wpm > b[key]){ b[key] = wpm; store.set("best", b); } }
+  $("#rTitle").textContent = item.kind === "book" ? "Book finished" : item.kind === "letter" ? "Letter finished" : item.kind === "sym" ? "Set finished" : "Quote finished";
+  $("#rWpm").textContent = wpm; $("#rAcc").textContent = acc + "%";
+  $("#again").textContent = item.kind === "book" ? "Books" : "Next";
+  sfx.ding(); kb.blur(); show("result");
+}
+function nextItem(){
+  const k = srcOf(mode);
+  if (k === "quote") store.set(mode+":qi", (store.get(mode+":qi", 0) + 1) % QUOTES.length);
+  if (k === "letter") store.set(mode+":li", (store.get(mode+":li", 0) + 1) % HLETTERS.length);
+  startMode(mode);
+}
+function openBooks(){
+  show("bookList");
+  $("#books").innerHTML = BOOKS.map(b => {
+    const p = store.get("pos:"+b.id, 0), done = p >= b.pages, pct = done ? 100 : 100 * p / b.pages;
+    return '<button class="book" data-id="'+b.id+'"><b>'+esc(b.title)+'</b><span>'+esc(b.author)+'</span>'
+      + '<div class="prog"><i style="width:'+pct+'%"></i></div>'
+      + '<span>'+(done ? "Finished - tap to read again" : p ? pct.toFixed(1)+"% - page "+(p+1)+" of "+b.pages : "Not started - "+b.pages+" pages")+'</span></button>';
+  }).join("");
+}
 
 /* ---------- typewriter ---------- */
 let target = "", typed = "";
 const kb = $("#kb"), paper = $("#paper");
-
-const SYM_POOLS = ["0123456789", "!@#$%^&*()", "~`-_=+[]{}\\|;:'\",.<>/?", "0123456789!@#$%^&*()~-_=+[]{};:'\",.<>/?"];
-function genSymbols(){
-  const groups = [];
-  for (let g = 0; g < 12; g++){
-    const pool = SYM_POOLS[g % 4]; let w = "";
-    for (let i = 0; i < 4; i++) w += pool[Math.floor(Math.random() * pool.length)];
-    groups.push(w);
-  }
-  return groups.join(" ");
-}
-const isSym = () => store.get("typeMode", "letters") === "sym";
-function setSeg(){
-  $("#segLetters").setAttribute("aria-pressed", !isSym());
-  $("#segSym").setAttribute("aria-pressed", isSym());
-  document.querySelector("#typeGame [data-next]").textContent = isSym() ? "New set" : "Next letter";
-}
-function startType(){
-  setSeg();
-  const L = LETTERS[idx]; target = isSym() ? genSymbols() : L.text; typed = ""; kb.value = "";
-  errors = keystrokes = 0; startTime = 0; finished = false;
-  $("#tTitle").textContent = isSym() ? "Symbols" : L.title;
-  renderType(); $("#hint").textContent = "Tap the page to start typing";
-}
 function renderType(fx){
   let html = "";
   for (let i = 0; i < target.length; i++){
-    const ch = target[i] === "\n" ? "\u21b5\n" : target[i];
     let cls = "c";
     if (i < typed.length) cls += typed[i] === target[i] ? " ok" : " bad";
     else if (i === typed.length) cls += " cur";
-    html += '<span class="'+cls+'">'+ch.replace(/&/g,"&amp;").replace(/</g,"&lt;")+'</span>';
+    html += '<span class="'+cls+'">'+esc(target[i])+'</span>';
   }
   paper.innerHTML = html;
-  $("#progT").style.width = (100 * typed.length / target.length) + "%";
+  setProg(typed.length / target.length);
   if (fx){ const el = paper.children[typed.length - 1]; if (el) el.classList.add(fx === "bad" ? "shake" : "pop"); }
-  const cur = paper.querySelector(".cur");
-  if (cur) cur.scrollIntoView({block:"center", behavior:"auto"});
+  const cur = paper.querySelector(".cur"); if (cur) cur.scrollIntoView({block:"center", behavior:"auto"});
 }
-paper.addEventListener("pointerdown", e => { e.preventDefault(); audio(); kb.focus(); $("#hint").textContent = ""; });
+kb.addEventListener("focus", () => { $("#hint").textContent = ""; audio(); });
+$(".paperwrap").addEventListener("click", () => kb.focus());
 kb.addEventListener("input", () => {
-  if (finished) return;
+  if (finished || busy || mode !== "type") return;
   let v = kb.value.replace(/[\u2018\u2019]/g, "'").replace(/[\u201c\u201d]/g, '"').replace(/[\u2013\u2014]/g, "-");
   if (v.length > target.length) v = v.slice(0, target.length);
   if (!startTime && v.length) startTime = Date.now();
@@ -328,34 +569,19 @@ kb.addEventListener("input", () => {
   if (v.length > typed.length){
     keystrokes++;
     const i = v.length - 1;
-    if (v[i] !== target[i]) { errors++; fx = "bad"; sfx.err(); } else { fx = "ok"; sfx.key(); addClick(); }
+    if (v[i] !== target[i]){ errors++; fx = "bad"; sfx.err(); } else { fx = "ok"; sfx.key(); addClick(); }
   } else if (v.length < typed.length) sfx.back();
   typed = v; kb.value = v;
   renderType(fx);
-  if (typed.length === target.length) finish(isSym() ? "sym" : "type", target.split(/\s+/).length);
+  if (typed.length === target.length) pageDone();
 });
 
 /* ---------- morse ---------- */
-let mTarget = "", mTyped = "", mWords = 0;
-function buildMorse(text){
-  const words = text.toUpperCase().split(/\s+/).map(w => [...w].filter(c => MORSE[c]).map(c => MORSE[c]).join(" ")).filter(Boolean);
-  mWords = words.length;
-  return words.join(" / ");
-}
-function startMorse(){
-  const L = LETTERS[idx]; $("#mTitle").textContent = L.title;
-  mTarget = buildMorse(L.text); mTyped = ""; errors = keystrokes = 0; startTime = 0; finished = false;
-  renderMorse();
-}
-function decode(m){ // returns decoded text of fully completed tokens
-  return m.split(" ").map(t => t === "/" ? " " : (REV[t] || "?")).join("").replace(/ ?\? ?$/,"");
-}
-function cleanText(){
-  return LETTERS[idx].text.toUpperCase().split(/\s+/).map(w => [...w].filter(c => MORSE[c]).join("")).filter(Boolean).join(" ");
-}
+let mTarget = "", mTyped = "";
+function words(text){ return text.toUpperCase().split(/\s+/).map(w => [...w].filter(c => MORSE[c]).join("")).filter(Boolean); }
+function buildMorse(text){ return words(text).map(w => [...w].map(c => MORSE[c]).join(" ")).join(" / "); }
 function countDone(){
-  const done = mTyped.split(" ");
-  const tt = mTarget.split(" ");
+  const done = mTyped.split(" "), tt = mTarget.split(" ");
   const complete = (mTyped.trim() === mTarget) ? done.length : done.length - 1;
   let n = 0;
   for (let i = 0; i < complete; i++){ if (done[i] !== tt[i]) break; n++; }
@@ -364,90 +590,93 @@ function countDone(){
 function renderMorse(fx){
   const ghost = store.get("ghost", true);
   $("#ghostToggle").setAttribute("aria-checked", ghost);
-  const clean = cleanText(), nDone = countDone();
+  const clean = words(item.pages[pos]).join(" "), nDone = countDone();
   let h = "";
-  for (let i = 0; i < clean.length; i++) h += '<span class="'+(i < nDone ? "done":"todo")+'">'+clean[i]+'</span>';
+  for (let i = 0; i < clean.length; i++) h += '<span class="'+(i < nDone ? "done" : "todo")+'">'+esc(clean[i])+'</span>';
   $("#srcline").innerHTML = h;
   let out = "";
   for (let i = 0; i < mTarget.length; i++){
-    const ch = mTarget[i] === "-" ? "\u2212" : (mTarget[i] === " " ? "\u00a0" : mTarget[i]);
-    let cls = "c", txt = ch, style = "";
+    const f = ch => ch === "-" ? "\u2212" : ch === " " ? "\u00a0" : ch;
+    let cls = "c", txt = f(mTarget[i]), style = "";
     if (i < mTyped.length){
       cls += mTyped[i] === mTarget[i] ? " ok" : " bad";
-      if (mTyped[i] !== mTarget[i]) txt = mTyped[i] === "-" ? "\u2212" : (mTyped[i] === " " ? "\u00a0" : mTyped[i]);
+      if (mTyped[i] !== mTarget[i]) txt = f(mTyped[i]);
     } else {
       if (i === mTyped.length) cls += " cur";
       if (!ghost) style = "color:transparent;";
     }
     out += '<span class="'+cls+'" style="'+style+'">'+txt+'</span>';
   }
-  if (mTyped.length > mTarget.length) out += '<span class="c bad">'+mTyped.slice(mTarget.length).replace(/-/g,"\u2212")+'</span>';
+  if (mTyped.length > mTarget.length) out += '<span class="c bad">'+mTyped.slice(mTarget.length).replace(/-/g, "\u2212")+'</span>';
   $("#mtyped").innerHTML = out;
-  $("#progM").style.width = Math.min(100, 100 * mTyped.length / mTarget.length) + "%";
+  setProg(mTyped.length / mTarget.length);
   if (fx){ const el = $("#mtyped").children[mTyped.length - 1]; if (el) el.classList.add(fx === "bad" ? "shake" : "pop"); }
   const cur = $("#mtyped .cur"); if (cur) cur.scrollIntoView({block:"nearest"});
 }
 function morseKey(k){
-  if (finished) return;
+  if (finished || busy) return;
   if (!startTime) startTime = Date.now();
-  if (k === "back"){ mTyped = mTyped.slice(0,-1); sfx.back(); renderMorse(); return; }
-  if (k === "/"){ // word gap writes " / "
+  if (k === "back"){ mTyped = mTyped.slice(0, -1); sfx.back(); renderMorse(); return; }
+  if (k === "/"){
     if (mTyped.endsWith(" / ") || mTyped.length === 0) return;
-    if (mTyped.endsWith(" ")) mTyped = mTyped.slice(0,-1);
+    if (mTyped.endsWith(" ")) mTyped = mTyped.slice(0, -1);
     k = " / ";
   }
   if (k === " " && (mTyped.endsWith(" ") || mTyped.length === 0)) return;
   keystrokes++;
-  const pos = mTyped.length;
-  let bad = false;
-  for (let j = 0; j < k.length; j++) if (k[j] !== mTarget[pos+j]) { errors++; bad = true; break; }
+  const p = mTyped.length; let bad = false;
+  for (let j = 0; j < k.length; j++) if (k[j] !== mTarget[p+j]){ errors++; bad = true; break; }
   mTyped += k;
   if (!bad) addClick();
   if (bad) sfx.err(); else if (k === ".") sfx.dot(); else if (k === "-") sfx.dash(); else sfx.gap();
   renderMorse(bad ? "bad" : "ok");
-  if (mTyped.trim() === mTarget) finish("morse", mWords);
+  if (mTyped.trim() === mTarget) pageDone();
 }
 function flashBtn(k){ const b = document.querySelector('#pad button[data-k="'+k+'"]'); if (b){ b.classList.add("hit"); setTimeout(() => b.classList.remove("hit"), 110); } }
 document.querySelectorAll("#pad button").forEach(b => b.addEventListener("click", () => { audio(); morseKey(b.dataset.k); }));
 document.addEventListener("keydown", e => {
-  if (mode !== "morse") return;
+  if (mode !== "morse" || !$("#sheet").classList.contains("hidden") || !$("#tableModal").classList.contains("hidden")) return;
   const map = { ".":".", "-":"-", " ":" ", "/":"/", "Backspace":"back" };
   if (map[e.key] !== undefined){ e.preventDefault(); flashBtn(map[e.key]); morseKey(map[e.key]); }
 });
-$("#soundToggle").addEventListener("click", () => { store.set("sound", !store.get("sound", true)); setSoundUI(); sfx.key(); });
 $("#ghostToggle").addEventListener("click", () => { store.set("ghost", !store.get("ghost", true)); renderMorse(); });
 
-/* ---------- finish ---------- */
-function finish(game, words){
-  finished = true;
-  const mins = Math.max((Date.now() - startTime) / 60000, 1/600);
-  const wpm = Math.round(words / mins);
-  const acc = keystrokes ? Math.max(0, Math.round(100 * (1 - errors / keystrokes))) : 100;
-  const b = store.get("best", {});
-  if (!b[game] || wpm > b[game]) { b[game] = wpm; store.set("best", b); }
-  $("#rWpm").textContent = wpm; $("#rAcc").textContent = acc + "%";
-  sfx.ding(); kb.blur(); show("result");
-}
+/* morse table */
+(function(){
+  const keys = Object.keys(MORSE);
+  $("#tableGrid").innerHTML = keys.map(k => '<div><b>'+esc(k)+'</b><span>'+MORSE[k].replace(/-/g, "\u2212")+'</span></div>').join("");
+})();
 
-/* ---------- navigation ---------- */
-function openGame(g){
-  mode = g;
-  if (g === "type"){ show("typeGame"); startType(); }
-  else { show("morseGame"); startMorse(); }
-}
-function nextLetter(){
-  if (!(mode === "type" && isSym())){ idx = (idx + 1) % LETTERS.length; store.set("letterIdx", idx); }
-  openGame(mode);
-}
-$("#segLetters").addEventListener("click", () => { store.set("typeMode", "letters"); startType(); });
-$("#segSym").addEventListener("click", () => { store.set("typeMode", "sym"); startType(); });
-document.querySelectorAll(".pick").forEach(b => b.addEventListener("click", () => { audio(); openGame(b.dataset.game); }));
+/* ---------- navigation and settings ---------- */
+document.querySelectorAll(".pick").forEach(b => b.addEventListener("click", () => { audio(); startMode(b.dataset.game); }));
 document.querySelectorAll("[data-back]").forEach(b => b.addEventListener("click", openMenu));
-document.querySelectorAll("[data-next]").forEach(b => b.addEventListener("click", nextLetter));
-$("#again").addEventListener("click", () => { const g = mode; nextLetter.call(null); });
+$("#tNext").addEventListener("click", () => { if (srcOf("type") === "book") openBooks(); else nextItem(); });
+$("#mNext").addEventListener("click", nextItem);
+document.querySelectorAll("#tSeg button").forEach(b => b.addEventListener("click", () => {
+  store.set("src", b.dataset.src);
+  if (b.dataset.src === "book") openBooks(); else startMode("type");
+}));
+document.querySelectorAll("#mSeg button").forEach(b => b.addEventListener("click", () => { store.set("msrc", b.dataset.msrc); startMode("morse"); }));
+$("#books").addEventListener("click", e => { const b = e.target.closest(".book"); if (b){ audio(); startBook(b.dataset.id); } });
+$("#again").addEventListener("click", () => { if (item && item.kind === "book") openBooks(); else nextItem(); });
 $("#toMenu").addEventListener("click", openMenu);
 
-if ("serviceWorker" in navigator) addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(()=>{}));
+function openModal(id){ $("#"+id).classList.remove("hidden"); }
+function closeModals(){ document.querySelectorAll(".modal").forEach(m => m.classList.add("hidden")); }
+document.querySelectorAll(".modal").forEach(m => m.addEventListener("click", e => { if (e.target === m) closeModals(); }));
+document.querySelectorAll("[data-close]").forEach(b => b.addEventListener("click", closeModals));
+$("#openSettings").addEventListener("click", () => { setSoundUI(); $("#clicksInput").value = clicks; openModal("sheet"); });
+$("#tableBtn").addEventListener("click", () => openModal("tableModal"));
+$("#soundToggle").addEventListener("click", () => { store.set("sound", !store.get("sound", true)); setSoundUI(); sfx.key(); });
+$("#clicksSet").addEventListener("click", () => setClicks($("#clicksInput").value));
+document.querySelectorAll("[data-add]").forEach(b => b.addEventListener("click", () => setClicks(clicks + Number(b.dataset.add))));
+$("#resetAll").addEventListener("click", () => {
+  if (!confirm("Delete all saved data (clicks, progress, settings)?")) return;
+  try{ Object.keys(localStorage).filter(k => k.indexOf("katoba:") === 0).forEach(k => localStorage.removeItem(k)); }catch(e){}
+  location.reload();
+});
+
+if ("serviceWorker" in navigator) addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
 bests(); setSoundUI(); updateClicks();
 </script>
 </body>
